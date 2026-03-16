@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Class representing an extension record.
+ *
  * @package    quizaccess_cheatdetect
  * @copyright  2026 CBlue SRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -24,8 +25,6 @@
  */
 
 namespace quizaccess_cheatdetect\persistent;
-
-defined('MOODLE_INTERNAL') || exit();
 
 use core\persistent;
 /**
@@ -38,8 +37,10 @@ use core\persistent;
  * @copyright  2026 CBlue SRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class extension extends persistent
-{
+class extension extends persistent {
+    /**
+     * The table to use.
+     */
     const TABLE = 'quizaccess_cheatdetect_extensions';
     /**
      * Defines the properties of a cheat detection extension.
@@ -50,8 +51,7 @@ class extension extends persistent
      * @return array<string, array<string, mixed>> An associative array defining
      *                                           the extension properties.
      */
-    protected static function define_properties(): array
-    {
+    protected static function define_properties(): array {
         return [
             'attemptid' => [
                 'type' => PARAM_INT,

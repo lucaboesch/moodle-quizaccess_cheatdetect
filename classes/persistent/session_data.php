@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Class representing a session data record.
+ *
  * @package    quizaccess_cheatdetect
  * @copyright  2026 CBlue SRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,16 +24,7 @@
  * @since      1.0.0
  */
 
-/**
- * Class representing a session data record.
- *
- * @copyright  2025 CBlue SRL <support@cblue.be>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace quizaccess_cheatdetect\persistent;
-
-defined('MOODLE_INTERNAL') || exit();
 
 use coding_exception;
 use core\persistent;
@@ -48,8 +40,10 @@ use stdClass;
  * @copyright  2026 CBlue SRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class session_data extends persistent
-{
+class session_data extends persistent {
+    /**
+     * The table to use.
+     */
     const TABLE = 'quizaccess_cheatdetect_data';
     /**
      * Defines the properties of a cheat detection session data record.
@@ -60,8 +54,7 @@ class session_data extends persistent
      * @return array<string, array<string, mixed>> An associative array defining
      *                                           the session data properties.
      */
-    protected static function define_properties(): array
-    {
+    protected static function define_properties(): array {
         return [
             'sessionid' => [
                 'type' => PARAM_INT,
@@ -80,8 +73,7 @@ class session_data extends persistent
      * @return stdClass|array The decoded session data.
      * @throws coding_exception If the property access fails.
      */
-    public function get_data_decoded(): stdClass|array
-    {
+    public function get_data_decoded(): stdClass|array {
         return json_decode($this->get('data'));
     }
 
@@ -94,8 +86,7 @@ class session_data extends persistent
      * @return static The current persistent instance.
      * @throws coding_exception If the property assignment fails.
      */
-    public function set_data_from_object(stdClass|array|string $data): static
-    {
+    public function set_data_from_object(stdClass|array|string $data): static {
         $this->set('data', json_encode($data));
 
         return $this;

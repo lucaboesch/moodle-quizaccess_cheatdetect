@@ -14,20 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace quizaccess_cheatdetect;
+
+use core\hook\output\before_footer_html_generation;
+
 /**
- * Version information
+ * Hook callbacks for quizaccess_cheatdetect.
  *
  * @package    quizaccess_cheatdetect
- * @copyright  2026 CBlue SRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @author     gnormand@cblue.be, abrichard@cblue.be
- * @since      1.0.0
+ * @copyright  2026 Luca Bösch <luca.boesch@bfh.ch>
  */
-
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version = 2026031201;
-$plugin->requires  = 2022041900;
-$plugin->component = 'quizaccess_cheatdetect';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = 'v2.0';
+class hook_callbacks {
+    /**
+     * Bootstrap the cheat detection quiz access rule
+     *
+     * @param before_footer_html_generation $hook
+     */
+    public static function before_footer_html_generation(before_footer_html_generation $hook): void {
+        ;
+    }
+}

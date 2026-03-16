@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Save data.
+ *
  * @package    quizaccess_cheatdetect
  * @copyright  2026 CBlue SRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -43,7 +45,9 @@ use coding_exception;
  * External function to save cheat detection tracking data.
  */
 class save_data extends external_api {
-
+    /**
+     * Timestamp conversion factor
+     */
     private const TIMESTAMP_CONVERSION_FACTOR = 1000;
 
     /**
@@ -72,17 +76,16 @@ class save_data extends external_api {
     /**
      * ${Execute the external function.}
      *
-     * @param ${string} ${$session_id}
-     * @param ${int} ${$attemptid}
-     * @param ${int} ${$userid}
-     * @param ${int} ${$quizid}
-     * @param ${int} ${$slot}
-     * @param ${array} ${$events}
-     *
-     * @return ${array}
+     * @param string $sessionid
+     * @param int $attemptid
+     * @param int $userid
+     * @param int $quizid
+     * @param ?int $slot
+     * @param array $events
+     * @return array
      */
     public static function execute(
-        string $session_id,
+        string $sessionid,
         int $attemptid,
         int $userid,
         int $quizid,
@@ -92,7 +95,7 @@ class save_data extends external_api {
         global $DB;
 
         self::validate_parameters(self::execute_parameters(), [
-            'session_id' => $session_id,
+            'session_id' => $sessionid,
             'attemptid' => $attemptid,
             'userid' => $userid,
             'quizid' => $quizid,
@@ -104,7 +107,7 @@ class save_data extends external_api {
         self::validate_context($context);
         require_login();
 
-        // Prevent students from writing arbitrary tracking data
+        // Prevent students from writing arbitrary tracking data.
         require_capability('mod/cheatdetect:savedetectiondata', $context);
 
         $transaction = $DB->start_delegated_transaction();
@@ -112,7 +115,7 @@ class save_data extends external_api {
         try {
             foreach ($events as $eventdata) {
                 self::process_event((object) $eventdata, [
-                    'session_id' => $session_id,
+                    'session_id' => $sessionid,
                     'attemptid' => $attemptid,
                     'userid' => $userid,
                     'quizid' => $quizid,
@@ -126,7 +129,6 @@ class save_data extends external_api {
                 'success' => true,
                 'processed' => count($events),
             ];
-
         } catch (\Throwable $e) {
             if (!$transaction->is_disposed()) {
                 $transaction->rollback($e);
@@ -158,8 +160,8 @@ class save_data extends external_api {
     /**
      * ${process_event}
      *
-     * @param ${stdClass} ${$eventdata}
-     * @param ${array} ${$context}
+     * @param \stdClass $eventdata
+     * @param array $context
      *
      */
     private static function process_event(\stdClass $eventdata, array $context): void {
@@ -177,9 +179,8 @@ class save_data extends external_api {
     /**
      * ${convert_timestamp_to_seconds}
      *
-     * @param ${int} ${$timestamp}
-     *
-     * @return ${int}
+     * @param int $timestamp
+     * @return int
      */
     private static function convert_timestamp_to_seconds(int $timestamp): int {
         return (int) ($timestamp / self::TIMESTAMP_CONVERSION_FACTOR);
@@ -188,8 +189,8 @@ class save_data extends external_api {
     /**
      * ${save_extensions}
      *
-     * @param ${stdClass} ${$eventdata}
-     * @param ${array} ${$context}
+     * @param \stdClass $eventdata
+     * @param array $context
      *
      */
     private static function save_extensions(\stdClass $eventdata, array $context): void {

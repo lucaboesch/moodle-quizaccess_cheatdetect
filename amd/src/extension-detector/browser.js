@@ -156,7 +156,7 @@ define([
 
         // Avoid duplicate requests
         if (this.activeRequests.has(requestId)) {
-            return Promise.resolve({ file: fileName, skipped: true });
+            return Promise.resolve({file: fileName, skipped: true});
         }
 
         this.activeRequests.add(requestId);

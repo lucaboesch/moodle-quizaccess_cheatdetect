@@ -15,19 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information
+ * Hook callbacks for cheat detection quiz access rule
  *
  * @package    quizaccess_cheatdetect
- * @copyright  2026 CBlue SRL
+ * @copyright  2026 Luca Bösch <luca.boesch@bfh.ch>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @author     gnormand@cblue.be, abrichard@cblue.be
- * @since      1.0.0
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2026031201;
-$plugin->requires  = 2022041900;
-$plugin->component = 'quizaccess_cheatdetect';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = 'v2.0';
+$callbacks = [
+    [
+        'hook' => \core\hook\output\before_footer_html_generation::class,
+        'callback' => \quizaccess_cheatdetect\hook_callbacks::class . '::before_footer_html_generation',
+        'priority' => 0,
+    ],
+];

@@ -36,7 +36,7 @@
 /* FontAwesome eye icon (initial placeholder) */
 .cheatdetect-icon {
     margin-left: 8px;
-    color: #0066cc;
+    color: #06c;
 }
 
 /* Resume block on review question page - Banner style with background icon */
@@ -80,7 +80,7 @@
 /* Gray variant (default/no data) */
 .cheatdetect_resume--gray {
     background-color: #f0f0f0;
-    border-color: #cccccc;
+    border-color: #ccc;
 }
 
 .cheatdetect_resume--gray::before {
@@ -115,14 +115,14 @@
 
 /* Red text for alert values in popover */
 .popover-body .text-danger {
-    color: #dc3545 !important;
+    color: #dc3545 !important; /* stylelint-disable-line declaration-no-important */
 }
 
 .popover-body .fw-bold {
-    font-weight: 700 !important;
+    font-weight: 700 !important; /* stylelint-disable-line declaration-no-important */
 }
 
-button:has(> img[data-cblue-spyicon="summary"])  {
+button:has(> img[data-cblue-spyicon="summary"]) {
     margin-left: 8px;
 }
 button:has(> img[data-cblue-spyicon="summary"]) > img[data-cblue-spyicon="summary"] {

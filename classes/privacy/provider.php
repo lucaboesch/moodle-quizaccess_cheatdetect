@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,7 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    mod_quizaccess_cheatdetect
+ * Privacy provider implementation for the quizaccess_cheatdetect plugin.
+ *
+ * @package    quizaccess_cheatdetect
  * @copyright  2026 CBlue SRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author     gnormand@cblue.be, abrichard@cblue.be
@@ -25,10 +26,9 @@
 
 namespace quizaccess_cheatdetect\privacy;
 
-defined('MOODLE_INTERNAL') || die();
-
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
+use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\contextlist;
 use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
@@ -42,15 +42,14 @@ use core_privacy\local\request\writer;
  * - The export of user data
  * - The deletion of user data (single user, multiple users, or all users)
  *
- * @package    mod_quizaccess_cheatdetect
+ * @package    quizaccess_cheatdetect
  * @copyright  2026 CBlue SRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements
     \core_privacy\local\metadata\provider,
-    \core_privacy\local\request\plugin\provider,
-    \core_privacy\local\request\core_userlist_provider {
-
+    \core_privacy\local\request\core_userlist_provider,
+    \core_privacy\local\request\plugin\provider {
     /**
      * Returns metadata about the user data stored by this plugin.
      *
@@ -63,7 +62,7 @@ class provider implements
             [
                 'attemptid' => 'privacy:metadata:attemptid',
                 'userid' => 'privacy:metadata:userid',
-                'actions' => 'privacy:metadata:actions'
+                'actions' => 'privacy:metadata:actions',
             ],
             'privacy:metadata:quizaccess_cheatdetect_events'
         );
@@ -73,7 +72,7 @@ class provider implements
             [
                 'attemptid' => 'privacy:metadata:attemptid',
                 'userid' => 'privacy:metadata:userid',
-                'metrics' => 'privacy:metadata:metrics'
+                'metrics' => 'privacy:metadata:metrics',
             ],
             'privacy:metadata:quizaccess_cheatdetect_metrics'
         );
@@ -83,7 +82,7 @@ class provider implements
             [
                 'attemptid' => 'privacy:metadata:attemptid',
                 'userid' => 'privacy:metadata:userid',
-                'extensions' => 'privacy:metadata:extensions'
+                'extensions' => 'privacy:metadata:extensions',
             ],
             'privacy:metadata:quizaccess_cheatdetect_extensions'
         );
@@ -132,44 +131,41 @@ class provider implements
         foreach ($contextlist->get_contexts() as $context) {
             $quizid = $context->instanceid;
 
-            // Export events
-            $events = $DB->get_records_sql("
-                SELECT cde.*
-                  FROM {quizaccess_cheatdetect_events} cde
-                  JOIN {quiz_attempts} qa ON qa.id = cde.attemptid
-                 WHERE qa.quiz = :quizid
-                   AND cde.userid = :userid",
+            // Export events.
+            $events = $DB->get_records_sql(
+                "SELECT cde.*
+                       FROM {quizaccess_cheatdetect_events} cde
+                       JOIN {quiz_attempts} qa ON qa.id = cde.attemptid
+                      WHERE qa.quiz = :quizid
+                        AND cde.userid = :userid",
                 ['quizid' => $quizid, 'userid' => $user->id]
             );
 
             writer::with_context($context)->export_related_data([], 'events', (object)['data' => array_values($events)]);
 
-
-            // Export metrics
-            $metrics = $DB->get_records_sql("
-                SELECT cdm.*
-                  FROM {quizaccess_cheatdetect_metrics} cdm
-                  JOIN {quiz_attempts} qa ON qa.id = cdm.attemptid
-                 WHERE qa.quiz = :quizid
-                   AND cdm.userid = :userid",
+            // Export metrics.
+            $metrics = $DB->get_records_sql(
+                "SELECT cdm.*
+                       FROM {quizaccess_cheatdetect_metrics} cdm
+                       JOIN {quiz_attempts} qa ON qa.id = cdm.attemptid
+                      WHERE qa.quiz = :quizid
+                        AND cdm.userid = :userid",
                 ['quizid' => $quizid, 'userid' => $user->id]
             );
 
             writer::with_context($context)->export_related_data([], 'metrics', (object)['data' => array_values($metrics)]);
 
-
-            // Export extensions
-            $extensions = $DB->get_records_sql("
-                SELECT cdext.*
-                  FROM {quizaccess_cheatdetect_extensions} cdext
-                  JOIN {quiz_attempts} qa ON qa.id = cdext.attemptid
-                 WHERE qa.quiz = :quizid
-                   AND cdext.userid = :userid",
+            // Export extensions.
+            $extensions = $DB->get_records_sql(
+                "SELECT cdext.*
+                       FROM {quizaccess_cheatdetect_extensions} cdext
+                       JOIN {quiz_attempts} qa ON qa.id = cdext.attemptid
+                      WHERE qa.quiz = :quizid
+                        AND cdext.userid = :userid",
                 ['quizid' => $quizid, 'userid' => $user->id]
             );
 
             writer::with_context($context)->export_related_data([], 'extensions', (object)['data' => array_values($extensions)]);
-
         }
     }
 
@@ -194,11 +190,12 @@ class provider implements
     /**
      * Deletes all user data for a specific user within the specified context.
      *
-     * @param \context $context The context to delete data from.
-     * @param int $userid The user ID whose data should be deleted.
+     * @param approved_contextlist $contextlist The context to delete data from.
      * @return void
-     */
-    public static function delete_data_for_user(\core_privacy\local\request\approved_contextlist $contextlist) {
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * */
+    public static function delete_data_for_user(approved_contextlist $contextlist) {
         global $DB;
 
         $userid = $contextlist->get_user()->id;
@@ -226,11 +223,11 @@ class provider implements
         global $DB;
         $context = $userlist->get_context();
 
-        $users = $DB->get_records_sql("
-            SELECT DISTINCT cde.userid
-              FROM {quizaccess_cheatdetect_events} cde
-              JOIN {quiz_attempts} qa ON qa.id = cde.attemptid
-             WHERE qa.quiz = :quizid",
+        $users = $DB->get_records_sql(
+            "SELECT DISTINCT cde.userid
+                   FROM {quizaccess_cheatdetect_events} cde
+                   JOIN {quiz_attempts} qa ON qa.id = cde.attemptid
+                  WHERE qa.quiz = :quizid",
             ['quizid' => $context->instanceid]
         );
 
@@ -242,11 +239,10 @@ class provider implements
     /**
      * Deletes user data for multiple users within the specified context.
      *
-     * @param \context $context The context to delete data from.
-     * @param int[] $userids The list of user IDs whose data should be deleted.
+     * @param approved_userlist $userlist The list of user IDs whose data should be deleted.
      * @return void
      */
-    public static function delete_data_for_users(\core_privacy\local\request\approved_userlist $userlist) {
+    public static function delete_data_for_users(approved_userlist $userlist) {
         global $DB;
 
         $userids = $userlist->get_userids();
@@ -258,7 +254,7 @@ class provider implements
 
         $quizid = $context->instanceid;
 
-        list($usql, $params) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'uid');
+        [$usql, $params] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'uid');
         $params['quizid'] = $quizid;
 
         $subquery = "attemptid IN (SELECT id FROM {quiz_attempts} WHERE quiz = :quizid) AND userid $usql";
@@ -267,5 +263,4 @@ class provider implements
         $DB->delete_records_select('quizaccess_cheatdetect_metrics', $subquery, $params);
         $DB->delete_records_select('quizaccess_cheatdetect_extensions', $subquery, $params);
     }
-
 }

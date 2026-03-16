@@ -55,7 +55,7 @@ define([], function() {
                 controller.abort();
             }, timeout);
 
-            fetch(url, { signal: controller.signal })
+            fetch(url, {signal: controller.signal})
                 .then(function(response) {
                     clearTimeout(timeoutId);
                     resolve({

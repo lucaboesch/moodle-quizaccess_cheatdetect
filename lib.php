@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  * Injects JavaScript on quiz report pages for cheat detection.
  *
@@ -31,8 +30,6 @@
  * @since      1.0.0
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Callback to inject JavaScript into quiz report pages.
  *
@@ -41,18 +38,18 @@ defined('MOODLE_INTERNAL') || die();
  */
 function quizaccess_cheatdetect_before_footer() {
     global $PAGE, $DB;
-    // Check if we're on a quiz report page
+    // Check if we're on a quiz report page.
     $pagetype = $PAGE->pagetype;
-    $report_pages = ['mod-quiz-report', 'mod-quiz-reviewquestion', 'mod-quiz-review'];
-    $is_report_page = false;
-    foreach ($report_pages as $report_page) {
-        if (strpos($pagetype, $report_page) !== false) {
-            $is_report_page = true;
+    $reportpages = ['mod-quiz-report', 'mod-quiz-reviewquestion', 'mod-quiz-review'];
+    $isreportpage = false;
+    foreach ($reportpages as $reportpage) {
+        if (strpos($pagetype, $reportpage) !== false) {
+            $isreportpage = true;
             break;
         }
     }
 
-    if (!$is_report_page) {
+    if (!$isreportpage) {
         return;
     }
 
@@ -76,7 +73,7 @@ function quizaccess_cheatdetect_before_footer() {
         return;
     }
 
-    // Load JavaScript module
+    // Load JavaScript module.
     $PAGE->requires->js_call_amd('quizaccess_cheatdetect/report_enhancer', 'init', [
         'cmid' => $cm->id,
         'quizid' => $cm->instance,

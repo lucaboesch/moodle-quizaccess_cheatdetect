@@ -15,22 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Class representing an event record.
+ *
  * @package    quizaccess_cheatdetect
  * @copyright  2026 CBlue SRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author     gnormand@cblue.be, abrichard@cblue.be
  * @since      1.0.0
  */
-
-/**
- * Class representing an event record.
- *
- * @copyright  2025 CBlue SRL <support@cblue.be>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 namespace quizaccess_cheatdetect\persistent;
-
-defined('MOODLE_INTERNAL') || exit();
 
 use core\persistent;
 
@@ -44,8 +37,10 @@ use core\persistent;
  * @copyright  2026 CBlue SRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class event extends persistent
-{
+class event extends persistent {
+    /**
+     * The table to use.
+     */
     const TABLE = 'quizaccess_cheatdetect_events';
     /**
      * Defines the properties of a cheat detection event.
@@ -56,8 +51,7 @@ class event extends persistent
      * @return array<string, array<string, mixed>> An associative array defining
      *                                           the event properties.
      */
-    protected static function define_properties(): array
-    {
+    protected static function define_properties(): array {
         return [
             'attemptid' => [
                 'type' => PARAM_INT,

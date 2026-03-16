@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Language file for the quizaccess_cheatdetect plugin.
+ *
  * @package    quizaccess_cheatdetect
  * @copyright  2026 CBlue SRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -24,18 +26,22 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+// Let codechecker ignore some sniffs for this file as it is perfectly well ordered, just not alphabetically.
+// phpcs:disable moodle.Files.LangFilesOrdering.UnexpectedComment
+// phpcs:disable moodle.Files.LangFilesOrdering.IncorrectOrder
+
 $string['pluginname'] = 'Cheat Detection';
 $string['privacy:metadata'] = 'The CheatDetect plugin stores information about quiz attempts for anti-cheating purposes.';
 $string['privacy:metadata:metric'] = 'Stores metrics like time focused, copy count, and focus loss.';
 $string['privacy:metadata:event'] = 'Stores raw events captured during a quiz attempt.';
 $string['privacy:metadata:extension'] = 'Stores information about detected browser extensions.';
 
-// Results
+// Results.
 $string['cheatdetection'] = 'Cheat Detection';
 $string['noeventsdetected'] = 'No suspicious events detected';
 $string['eventsdetected'] = '{$a} suspicious event(s) detected';
 
-// Review question page - summary block
+// Review question page - summary block.
 $string['questiondetails'] = 'Cheat Detection - Question details';
 $string['timespent'] = 'The user spent {$a->duration} ({$a->percentage}% of the quiz) on question {$a->slot}';
 $string['day'] = 'day';

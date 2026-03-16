@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Get bulk attempt summaries.
+ *
  * @package    quizaccess_cheatdetect
  * @copyright  2026 CBlue SRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -35,8 +37,10 @@ use quizaccess_cheatdetect\helper;
 use stdClass;
 use context_course;
 
+/**
+ * Get bulk attempt summary.
+ */
 class get_bulk_attempt_summaries extends external_api {
-
     /**
      * ${execute_parameters}
      *
@@ -45,16 +49,15 @@ class get_bulk_attempt_summaries extends external_api {
      */
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'attemptids' => new external_multiple_structure(new external_value(PARAM_INT, 'Attempt ID'))
+            'attemptids' => new external_multiple_structure(new external_value(PARAM_INT, 'Attempt ID')),
         ]);
     }
 
     /**
      * ${execute}
      *
-     * @param ${array} ${$attemptids}
-     *
-     * @return ${array}
+     * @param array $attemptids
+     * @return array
      */
     public static function execute(array $attemptids): array {
         global $DB;
@@ -64,13 +67,13 @@ class get_bulk_attempt_summaries extends external_api {
             throw new \Exception('No attemptids provided');
         }
 
-        $first_attempt = $DB->get_record('quiz_attempts', ['id' => $attemptids[0]], 'id, quiz', MUST_EXIST);
-        $quiz = $DB->get_record('quiz', ['id' => $first_attempt->quiz], 'id, course', MUST_EXIST);
-        $course_context = context_course::instance($quiz->course);
+        $firstattempt = $DB->get_record('quiz_attempts', ['id' => $attemptids[0]], 'id, quiz', MUST_EXIST);
+        $quiz = $DB->get_record('quiz', ['id' => $firstattempt->quiz], 'id, course', MUST_EXIST);
+        $coursecontext = context_course::instance($quiz->course);
 
-        require_capability('mod/cheatdetect:viewattempts', $course_context);
+        require_capability('mod/cheatdetect:viewattempts', $coursecontext);
 
-        if (!has_capability('quizaccess/cheatdetect:viewcoursereports', $course_context)) {
+        if (!has_capability('quizaccess/cheatdetect:viewcoursereports', $coursecontext)) {
             throw new \Exception('Permission denied');
         }
 
@@ -79,33 +82,33 @@ class get_bulk_attempt_summaries extends external_api {
             $summary = helper::get_attempt_summary($attemptid);
             $summary['has_extensions'] = helper::has_extensions($attemptid);
 
-            $total_time = helper::get_total_attempt_time($attemptid);
+            $totaltime = helper::get_total_attempt_time($attemptid);
             $metrics = helper::get_attempt_metrics($attemptid);
 
             $slots = [];
             foreach ($metrics as $slot => $metric) {
-                $time_spent = $metric->get('time_total');
-                $time_percentage = $total_time > 0 ? round(($time_spent / $total_time) * 100, 2) : 0;
+                $timespent = $metric->get('time_total');
+                $timepercentage = $totaltime > 0 ? round(($timespent / $totaltime) * 100, 2) : 0;
                 $extensions = helper::get_slot_extensions($attemptid, $slot);
-                $cheat_detected = $extensions || ($metric->get('copy_count') + $metric->get('focus_loss_count') > 0);
+                $cheatdetected = $extensions || ($metric->get('copy_count') + $metric->get('focus_loss_count') > 0);
 
                 $slots[] = [
                     'slot' => $slot,
-                    'time_spent' => $time_spent,
-                    'time_percentage' => $time_percentage,
+                    'time_spent' => $timespent,
+                    'time_percentage' => $timepercentage,
                     'copy_count' => $metric->get('copy_count'),
                     'focus_loss_count' => $metric->get('focus_loss_count'),
                     'extensions_detected' => $extensions,
                     'has_extension' => !empty($extensions),
-                    'cheat_detected' => $cheat_detected
+                    'cheat_detected' => $cheatdetected,
                 ];
             }
 
             usort($slots, fn($a, $b) => $a['slot'] - $b['slot']);
             $results[] = [
                 'attemptid' => $attemptid,
-                'summary' => $summary, // <-- array PHP
-                'slots' => $slots
+                'summary' => $summary,
+                'slots' => $slots,
             ];
         }
 

@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Event handler for for the quizaccess_cheatdetect plugin.
+ *
  * @package    quizaccess_cheatdetect
  * @copyright  2026 CBlue SRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -24,8 +25,6 @@
  */
 
 namespace quizaccess_cheatdetect\service;
-
-defined('MOODLE_INTERNAL') || die();
 
 use coding_exception;
 use quizaccess_cheatdetect\persistent\event;
@@ -41,7 +40,9 @@ use quizaccess_cheatdetect\persistent\extension;
  * @package    quizaccess_cheatdetect
  */
 class event_handler {
-
+    /**
+     * Timestamp conversion factor.
+     */
     const TIMESTAMP_CONVERSION_FACTOR = 1000;
 
     /**
@@ -81,17 +82,17 @@ class event_handler {
      *
      * The handler method name is dynamically generated based on the action.
      *
-     * @param \stdClass $event_data The event data.
+     * @param \stdClass $eventdata The event data.
      * @param array $context Context information.
      * @param int $timestamp The event timestamp (milliseconds).
      * @return void
      */
-    private static function dispatch_handler(\stdClass $event_data, array $context, int $timestamp): void {
-        $action = $event_data->action;
+    private static function dispatch_handler(\stdClass $eventdata, array $context, int $timestamp): void {
+        $action = $eventdata->action;
         $method = 'handle_' . str_replace(['-', ' '], '_', $action) . '_event';
 
         if (method_exists(self::class, $method)) {
-            self::$method($event_data, $context, $timestamp);
+            self::$method($eventdata, $context, $timestamp);
         }
     }
 
@@ -100,13 +101,13 @@ class event_handler {
      *
      * Creates a new event persistent record and stores the event payload.
      *
-     * @param \stdClass $event_data The event data.
+     * @param \stdClass $eventdata The event data.
      * @param array $context Context information.
      * @param int $timestamp The event timestamp (milliseconds).
      * @return void
      * @throws coding_exception If validation fails.
      */
-    private static function save_raw_event(\stdClass $event_data, array $context, int $timestamp): void {
+    private static function save_raw_event(\stdClass $eventdata, array $context, int $timestamp): void {
         $record = new event();
         $record->set('attemptid', (int)$context['attemptid']);
         $record->set('userid', (int)$context['userid']);
@@ -114,16 +115,16 @@ class event_handler {
         $record->set('slot', isset($context['slot']) ? (int)$context['slot'] : null);
         $record->set('session_id', $context['session_id']);
         $record->set('timestamp', $timestamp);
-        $record->set('action', $event_data->action);
+        $record->set('action', $eventdata->action);
         $record->set('timecreated', time());
 
-        if (!empty($event_data->data)) {
-            $record->set('data_json', json_encode($event_data->data));
+        if (!empty($eventdata->data)) {
+            $record->set('data_json', json_encode($eventdata->data));
         }
 
         if (!$record->is_valid()) {
             $errors = $record->get_errors();
-            error_log('EVENT VALIDATION ERRORS: ' . json_encode($errors));
+            debugging('EVENT VALIDATION ERRORS: ' . json_encode($errors));
             throw new \coding_exception('Event validation failed: ' . json_encode($errors));
         }
 
@@ -249,7 +250,9 @@ class event_handler {
                     'extension_uid' => $ext->uid,
                 ]);
                 continue;
-            } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+                break;
+            }
 
             $rec = new extension();
             $rec->set('attemptid', $ctx['attemptid']);
@@ -280,7 +283,7 @@ class event_handler {
             'attemptid' => $context['attemptid'],
             'userid'    => $context['userid'],
             'quizid'    => $context['quizid'],
-            'slot'      => $context['slot']
+            'slot'      => $context['slot'],
         ]);
 
         if ($existing instanceof metric) {
@@ -298,6 +301,7 @@ class event_handler {
 
         return $new;
     }
+
     /**
      * Closes the current time window and updates time counters.
      *
@@ -306,12 +310,12 @@ class event_handler {
      *
      * @param metric $metric The metric instance.
      * @param int $ts The current timestamp (milliseconds).
-     * @param string $expectedState The expected current state.
+     * @param string $expectedstate The expected current state.
      * @return void
      */
-    private static function close_time_window(metric $metric, int $ts, string $expectedState): void {
+    private static function close_time_window(metric $metric, int $ts, string $expectedstate): void {
         $last = $metric->get('last_event_timestamp');
-        if (!$last || $metric->get('current_state') !== $expectedState) {
+        if (!$last || $metric->get('current_state') !== $expectedstate) {
             return;
         }
 
@@ -320,7 +324,7 @@ class event_handler {
             return;
         }
 
-        if ($expectedState === 'focused') {
+        if ($expectedstate === 'focused') {
             $metric->set('time_focused', $metric->get('time_focused') + $delta);
         } else {
             $metric->set('time_unfocused', $metric->get('time_unfocused') + $delta);
@@ -328,16 +332,25 @@ class event_handler {
 
         $metric->set('time_total', $metric->get('time_total') + $delta);
     }
+
     /**
      * Converts a JavaScript timestamp (milliseconds) to seconds.
      *
-     * @param int|float $jsTimestamp The JavaScript timestamp.
+     * @param int|float $jstimestamp The JavaScript timestamp.
      * @return int The converted timestamp in seconds.
      */
-    private static function to_seconds($jsTimestamp): int {
-        return (int) ($jsTimestamp / self::TIMESTAMP_CONVERSION_FACTOR);
+    private static function to_seconds($jstimestamp): int {
+        return (int) ($jstimestamp / self::TIMESTAMP_CONVERSION_FACTOR);
     }
 
+    /**
+     * Save the extensions
+     *
+     * @param \stdClass $eventdata
+     * @param array $context
+     * @return void
+     * @throws \dml_exception
+     */
     private static function save_extensions(\stdClass $eventdata, array $context): void {
         global $DB;
 

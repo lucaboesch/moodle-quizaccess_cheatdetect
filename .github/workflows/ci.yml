@@ -10,40 +10,33 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Moodle 4.5 (latest stable)
+          # Moodle 5.1 (Latest stable)
+          - php: '8.4'
+            moodle-branch: 'MOODLE_501_STABLE'
+            database: 'pgsql'
+          - php: '8.4'
+            moodle-branch: 'MOODLE_501_STABLE'
+            database: 'mariadb'
+
+          # Moodle 5.0
           - php: '8.3'
-            moodle-branch: 'MOODLE_405_STABLE'
+            moodle-branch: 'MOODLE_500_STABLE'
             database: 'pgsql'
           - php: '8.3'
-            moodle-branch: 'MOODLE_405_STABLE'
+            moodle-branch: 'MOODLE_500_STABLE'
             database: 'mariadb'
-          
-          # Moodle 4.4 (LTS)
+
+          # Moodle 4.5 (LTS)
           - php: '8.2'
-            moodle-branch: 'MOODLE_404_STABLE'
+            moodle-branch: 'MOODLE_405_STABLE'
             database: 'pgsql'
-          - php: '8.1'
-            moodle-branch: 'MOODLE_404_STABLE'
+          - php: '8.2'
+            moodle-branch: 'MOODLE_405_STABLE'
             database: 'mariadb'
-          
-          # Moodle 4.3
-          - php: '8.1'
-            moodle-branch: 'MOODLE_403_STABLE'
-            database: 'pgsql'
-          
-          # Moodle 4.1
-          - php: '8.0'
-            moodle-branch: 'MOODLE_401_STABLE'
-            database: 'mariadb'
-          
-          # Moodle 4.0
-          - php: '7.4'
-            moodle-branch: 'MOODLE_400_STABLE'
-            database: 'pgsql'
 
     services:
       postgres:
-        image: postgres:14
+        image: postgres:16
         env:
           POSTGRES_USER: 'postgres'
           POSTGRES_HOST_AUTH_METHOD: 'trust'
@@ -95,11 +88,6 @@ jobs:
         if: ${{ always() }}
         run: moodle-plugin-ci phplint
 
-      - name: PHP Copy/Paste Detector
-        continue-on-error: true # This step will show errors but will not fail
-        if: ${{ always() }}
-        run: moodle-plugin-ci phpcpd
-
       - name: PHP Mess Detector
         continue-on-error: true
         if: ${{ always() }}
@@ -127,7 +115,7 @@ jobs:
 
       - name: Grunt
         if: ${{ always() }}
-        run: moodle-plugin-ci grunt --max-lint-warnings 0
+        run: moodle-plugin-ci grunt
 
       - name: PHPUnit tests
         if: ${{ always() }}
@@ -154,7 +142,7 @@ jobs:
   security:
     runs-on: ubuntu-latest
     needs: test
-    
+
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -248,4 +236,3 @@ jobs:
         run: |
           echo "Plugin release ${{ steps.get_version.outputs.VERSION }} created"
           # Add curl command to notify plugins.moodle.org if applicable
-

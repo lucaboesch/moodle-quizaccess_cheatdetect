@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Class representing a session record.
  * @package    quizaccess_cheatdetect
  * @copyright  2026 CBlue SRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,16 +23,7 @@
  * @since      1.0.0
  */
 
-/**
- * Class representing a session record.
- *
- * @copyright  2025 CBlue SRL <support@cblue.be>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace quizaccess_cheatdetect\persistent;
-
-defined('MOODLE_INTERNAL') || exit();
 
 use core\persistent;
 /**
@@ -47,8 +38,10 @@ use core\persistent;
  * @copyright  2026 CBlue SRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class session extends persistent
-{
+class session extends persistent {
+    /**
+     * The table to use.
+     */
     const TABLE = 'quizaccess_cheatdetect_sess';
     /**
      * Defines the properties of a cheat detection session.
@@ -59,8 +52,7 @@ class session extends persistent
      * @return array<string, array<string, mixed>> An associative array defining
      *                                           the session properties.
      */
-    protected static function define_properties(): array
-    {
+    protected static function define_properties(): array {
         return [
             'session_id' => [
                 'type' => PARAM_ALPHANUMEXT,

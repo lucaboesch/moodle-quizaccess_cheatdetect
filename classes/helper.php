@@ -5,6 +5,14 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Cheat detection helper utilities.
@@ -21,8 +29,6 @@
  */
 namespace quizaccess_cheatdetect;
 
-defined('MOODLE_INTERNAL') || die();
-
 use quizaccess_cheatdetect\persistent\metric;
 use quizaccess_cheatdetect\persistent\extension;
 
@@ -37,7 +43,6 @@ use quizaccess_cheatdetect\persistent\extension;
  * All methods are static and designed for read-only operations.
  */
 class helper {
-
     /**
      * Retrieve metric data for a specific attempt and slot.
      *
@@ -59,7 +64,7 @@ class helper {
 
         $record = $DB->get_record_sql($sql, [
             'attemptid' => $attemptid,
-            'slot' => $slot
+            'slot' => $slot,
         ]);
 
         if (!$record) {
@@ -108,7 +113,7 @@ class helper {
 
         $records = $DB->get_records(extension::TABLE, [
             'attemptid' => $attemptid,
-            'slot' => $slot
+            'slot' => $slot,
         ]);
 
         $extensions = [];
@@ -117,7 +122,7 @@ class helper {
                 'key' => $record->extension_key,
                 'name' => $record->extension_name,
                 'uid' => $record->extension_uid,
-                'detected_at' => $record->timecreated
+                'detected_at' => $record->timecreated,
             ];
         }
 
@@ -209,10 +214,10 @@ class helper {
             'has_only_one_question_per_page' => $result && (int)$result->questionsperpage === 1,
         ];
 
-        $total_copies = $result ? (int)$result->total_copies : 0;
-        $total_focus_losses = $result ? (int)$result->total_focus_losses : 0;
-        $total_extensions = $result ? (int)$result->total_extensions : 0;
-        $summary['cheat_detected'] = ($total_copies + $total_focus_losses + $total_extensions) > 0;
+        $totalcopies = $result ? (int)$result->total_copies : 0;
+        $totalfocuslosses = $result ? (int)$result->total_focus_losses : 0;
+        $totalextensions = $result ? (int)$result->total_extensions : 0;
+        $summary['cheat_detected'] = ($totalcopies + $totalfocuslosses + $totalextensions) > 0;
 
         if ($summary['slot_count'] > 0) {
             $summary['avg_time'] = (int)($summary['total_time'] / $summary['slot_count']);

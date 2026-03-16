@@ -58,7 +58,6 @@ if (class_exists('\mod_quiz\local\access_rule_base')) {
  * @since      1.0.0
  */
 class quizaccess_cheatdetect extends quizaccess_cheat_detect_parent_class {
-
     /**
      * Create an instance of this rule for a particular quiz.
      *
@@ -107,8 +106,11 @@ class quizaccess_cheatdetect extends quizaccess_cheat_detect_parent_class {
         global $PAGE;
 
         // Add header for cheat detection section.
-        $mform->addElement('header', 'cheatdetectheader',
-            get_string('cheatdetectheader', 'quizaccess_cheatdetect'));
+        $mform->addElement(
+            'header',
+            'cheatdetectheader',
+            get_string('cheatdetectheader', 'quizaccess_cheatdetect')
+        );
 
         // Add informational message about automatic cheat detection.
         $mform->addElement(
@@ -214,17 +216,17 @@ class quizaccess_cheatdetect extends quizaccess_cheat_detect_parent_class {
         // Get attempt ID and page number from URL parameters.
         $attemptid = optional_param('attempt', 0, PARAM_INT);
         // Page defaults to 0 (first page) when not specified in URL.
-        $page_number = optional_param('page', 0, PARAM_INT);
+        $pagenumber = optional_param('page', 0, PARAM_INT);
 
         // Get or generate session ID for tracking.
-        $sessionId = session_id();
-        if (empty($sessionId)) {
-            $sessionId = md5(uniqid(rand(), true));
+        $sessionid = session_id();
+        if (empty($sessionid)) {
+            $sessionid = md5(uniqid(rand(), true));
         }
 
         // In Moodle quiz_slots, pages are numbered starting from 1, but URL uses 0-based indexing.
         // So we need to add 1 to convert from URL page to DB page.
-        $dbpage = $page_number + 1;
+        $dbpage = $pagenumber + 1;
 
         // Get the slot number for this page.
         $slot = $DB->get_field('quiz_slots', 'slot', ['quizid' => $this->quiz->id, 'page' => $dbpage]);
@@ -237,12 +239,12 @@ class quizaccess_cheatdetect extends quizaccess_cheat_detect_parent_class {
 
         // Prepare parameters for JavaScript module.
         $params = [
-            'sessionId' => $sessionId,
+            'sessionId' => $sessionid,
             'attemptid' => $attemptid,
             'userid' => $USER->id,
             'quizid' => $this->quiz->id,
             'slot' => $slot ?: null,
-            'startDetection' => true
+            'startDetection' => true,
         ];
 
         // Initialize the tracking JavaScript module.

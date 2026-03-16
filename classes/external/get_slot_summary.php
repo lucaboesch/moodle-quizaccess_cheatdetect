@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Get slot summary.
+ *
  * @package    quizaccess_cheatdetect
  * @copyright  2026 CBlue SRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -53,10 +55,9 @@ class get_slot_summary extends external_api {
     /**
      * ${execute}
      *
-     * @param ${int} ${$attemptid}
-     * @param ${int} ${$slot}
-     *
-     * @return ${array}
+     * @param int $attemptid
+     * @param int $slot
+     * @return array
      */
     public static function execute(int $attemptid, int $slot): array {
         global $DB;
@@ -82,26 +83,26 @@ class get_slot_summary extends external_api {
         }
 
         $metric = helper::get_slot_metric($attemptid, $slot);
-        $total_time = helper::get_total_attempt_time($attemptid);
+        $totaltime = helper::get_total_attempt_time($attemptid);
 
-        $time_spent = $metric ? $metric->get('time_total') : 0;
-        $time_percentage = $total_time > 0 ? round(($time_spent / $total_time) * 100, 2) : 0;
+        $timespent = $metric ? $metric->get('time_total') : 0;
+        $timepercentage = $totaltime > 0 ? round(($timespent / $totaltime) * 100, 2) : 0;
 
         $extensions = helper::get_slot_extensions($attemptid, $slot);
 
-        $cheat_detected = !empty($extensions)
+        $cheatdetected = !empty($extensions)
             || ($metric && ($metric->get('copy_count') + $metric->get('focus_loss_count') > 0));
 
         return [
             'attemptid' => $attemptid,
             'slot' => $slot,
-            'time_spent' => $time_spent,
-            'time_percentage' => $time_percentage,
+            'time_spent' => $timespent,
+            'time_percentage' => $timepercentage,
             'copy_count' => $metric ? $metric->get('copy_count') : 0,
             'focus_loss_count' => $metric ? $metric->get('focus_loss_count') : 0,
             'extensions_detected' => $extensions,
             'has_extension' => !empty($extensions),
-            'cheat_detected' => $cheat_detected,
+            'cheat_detected' => $cheatdetected,
         ];
     }
 

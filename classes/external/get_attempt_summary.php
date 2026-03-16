@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Get attempt summary.
+ *
  * @package    quizaccess_cheatdetect
  * @copyright  2026 CBlue SRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -38,8 +40,9 @@ use context_course;
  * ${get_attempt_summary}
  */
 class get_attempt_summary extends external_api {
-
     /**
+     * Describes the parameters.
+     *
      * @return external_function_parameters
      */
     public static function execute_parameters(): external_function_parameters {
@@ -49,6 +52,8 @@ class get_attempt_summary extends external_api {
     }
 
     /**
+     * Execute the service.
+     *
      * @param int $attemptid
      * @return array
      * @throws \coding_exception
@@ -89,6 +94,8 @@ class get_attempt_summary extends external_api {
     }
 
     /**
+     * Describes the return structure of the service.
+     *
      * @return external_single_structure
      */
     public static function execute_returns(): external_single_structure {

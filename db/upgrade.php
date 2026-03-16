@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Upgrade script for plugin.
+ *
  * @package    quizaccess_cheatdetect
  * @copyright  2026 CBlue SRL
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -35,7 +37,6 @@
  * @author     abrichard@cblue.be
  * @since      1.0.0
  */
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Upgrade the quizaccess_cheatdetect plugin.
@@ -53,7 +54,6 @@ function xmldb_quizaccess_cheatdetect_upgrade($oldversion) {
     $dbman = $DB->get_manager();
 
     if ($oldversion < 2025103002) {
-
         $table = new xmldb_table('quizaccess_cheatdetect_sess');
 
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
@@ -94,7 +94,6 @@ function xmldb_quizaccess_cheatdetect_upgrade($oldversion) {
     }
 
     if ($oldversion < 2025103003) {
-
         $table = new xmldb_table('quizaccess_cheatdetect_sess');
         if ($dbman->table_exists($table)) {
             $dbman->drop_table($table);
